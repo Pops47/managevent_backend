@@ -6,30 +6,42 @@ import { Task } from './entities/task.entity';
 
 @Injectable()
 export class TasksService {
-  private Task: Task[] = []
+  //creer une fonction qui permet d'envoyer des données à chaques itérations de la fonction.
+  private Task: Task[] = [
+    {"id":1,"name": "Loremone", "description": "one Dolor sit amet"},
+    {"id":2,"name": "Loremtwo", "description": "two Dolor sit amet"},
+    {"id":3,"name": "Loremthree", "description": "Three Dolor sit amet"},
+    {"id":4,"name": "Loremfour", "description": "Four Dolor sit amet"},
+    {"id":5,"name": "Loremfive", "description": "five Dolor sit amet"},
+  ]
+  
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createTaskDto: CreateTaskDto):Promise<Task> {
-    return await this.create(createTaskDto);
+    return new Task(createTaskDto)  
   }
 
-  insertInStudents(task : Task):void{
+  insertInTask(task : Task):void{
     this.Task.push(task);
-}
-  async findAll(): Promise<Task> {
-    return await this.findAll();
   }
-
+  
+  async findAll(): Promise<Task[]> {
+    return await this.Task;
+  }
 
   async findOne(id: number): Promise<Task> {
     return await this.Task.find((task) => task?.id == id);
   }
-//   findOne(id: number): Student {
-//     return this.students.find((student) => student?.id === id)
-// }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    return await this.prismaService.task.update({
+      where: {
+        id
+      },
+      data: {
+        ...updateTaskDto
+      }
+    });
   }
 
   remove(id: number) {

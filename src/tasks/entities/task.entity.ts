@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger/dist/decorators";
 import { CreateTaskDto } from "../dto/create-task.dto";
 
 export class Task {
-    static countTask = 0;
+    static countTask = 5;
 
     constructor(createTaskDto : CreateTaskDto){
         Task.countTask ++
