@@ -8,13 +8,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-import { AuthService } from './auth.service';
-import { UsersService } from 'src/users/users.service';
-import { LoginDto } from './dto/login.dto';
-import { AuthRefreshGuard } from './guards/refresh.guard';
 import { User } from '@prisma/client';
+import { UsersService } from 'src/users/users.service';
 import { RequestWithRefresh } from 'src/utils/interfaces/request.interfaces';
+import { AuthService } from './auth.service';
+import { RegisterLoginDto } from './dto/register-login.dto';
+import { AuthRefreshGuard } from './guards/refresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +23,7 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() payload: RegisterDto) {
+  async register(@Body() payload: RegisterLoginDto) {
     const user = await this.userService.findOneByEmail(payload.email);
     if (user) {
       throw new HttpException('Email already exists', HttpStatus.FORBIDDEN);
@@ -40,7 +39,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() payload: LoginDto) {
+  async login(@Body() payload: RegisterLoginDto) {
     // check if email exist
     const user = await this.userService.findOneByEmail(payload.email);
 
