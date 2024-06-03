@@ -11,6 +11,7 @@ import { UserNotificationsModule } from './user-notifications/user-notifications
 import { UserTaskEventsModule } from './user-task-events/user-task-events.module';
 import { UsersModule } from './users/users.module';
 import { UserBadgesModule } from './user-badges/user-badges.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserBadgesModule } from './user-badges/user-badges.module';
     UserNotificationsModule,
     UserBadgesModule,
     UserBadgesModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
