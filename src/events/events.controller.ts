@@ -1,22 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  HttpException,
+  Param,
+  Patch,
+  Post,
   Req,
   UseGuards,
-  HttpException,
-  ParseIntPipe,
 } from '@nestjs/common';
-import { EventsService } from './events.service';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { Event } from '@prisma/client';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { RequestWithUser } from 'utils/interfaces/request';
+import { RequestWithUser } from 'src/utils/interfaces/request';
+import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
+import { EventsService } from './events.service';
 
 @UseGuards(AuthGuard)
 @Controller('events')

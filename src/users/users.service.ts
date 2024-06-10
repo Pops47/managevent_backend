@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -53,9 +52,14 @@ export class UsersService {
   }
 
   async findOneByResetPassToken(resetPassToken: string) {
-    const hashResetPassToken = await bcrypt.hash(resetPassToken, 10);
     return await this.prismaService.user.findFirst({
-      where: { resetPassToken: hashResetPassToken },
+      where: { resetPassToken: resetPassToken },
+    });
+  }
+
+  async findOneByConfirmToken(confirmToken: string) {
+    return await this.prismaService.user.findFirst({
+      where: { confirmToken },
     });
   }
 

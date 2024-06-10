@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { MediaModule } from './media/media.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { join } from 'path';
     UserBadgesModule,
     AuthModule,
     MediaModule,
+    MailerModule,
   ],
   controllers: [],
   providers: [],

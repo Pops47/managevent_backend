@@ -10,11 +10,11 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RequestWithUser } from 'src/utils/interfaces/request';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { AuthService } from 'src/auth/auth.service';
 
 @UseGuards(AuthGuard)
 @Controller('users')
@@ -40,6 +40,15 @@ export class UsersController {
   @Get()
   async findOneByToken(@Req() request: RequestWithUser) {
     return await this.usersService.findOneById(request.user.id);
+  }
+
+  @Get('/token/:token')
+  findOneByResetPassToken(@Param('token') token: string) {
+    console.log(
+      '🚀 ~ UsersController ~ findOneByResetPassToken ~ token:',
+      token,
+    );
+    return this.usersService.findOneByResetPassToken(token);
   }
 
   @Patch()

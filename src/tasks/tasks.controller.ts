@@ -1,22 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
   HttpException,
+  Param,
+  Patch,
+  Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TasksService } from './tasks.service';
 
 import { Task } from '@prisma/client';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { RequestWithUser } from 'utils/interfaces/request';
+import { RequestWithUser } from 'src/utils/interfaces/request';
 
 @UseGuards(AuthGuard)
 @Controller('tasks')
