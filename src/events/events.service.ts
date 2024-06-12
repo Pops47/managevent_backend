@@ -11,6 +11,7 @@ export class EventsService {
         taskId: true,
         volunteerNumber: true,
         needValidation: true,
+        task: true,
       },
     },
     userTaskEvent: {
