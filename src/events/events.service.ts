@@ -2,25 +2,55 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { Event } from '@prisma/client';
 
 @Injectable()
 export class EventsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  readonly includeDefault = {
+    taskEvent: {
+      select: {
+        taskId: true,
+        volunteerNumber: true,
+        needValidation: true,
+      },
+    },
+    userTaskEvent: {
+      select: {
+        userId: true,
+        status: true,
+      },
+    },
+  };
 
-  create(createEventDto: CreateEventDto) {
-    return 'This action adds a new event';
+  constructor(private readonly prismaService: PrismaService) { }
+
+  async create(createEventDto: CreateEventDto) {
+    return await this.prismaService.event.create({
+      data:
+        createEventDto
+    });
   }
 
-  findAll() {
-    return `This action returns all events`;
+  async findAll(): Promise<Array<Event>> {
+    return await this.prismaService.event.findMany()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
-  }
 
+  async findOne(id: number): Promise<Event> {
+    return await this.prismaService.event.findUnique({
+      where: {
+        id,
+        title: 'vieilles charrues',
+      },
+      include: this.includeDefault,
+    });
+  }
+  //  async machine(argent: number): Promise<bonbon> {}
   update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
+    return this.prismaService.event.update({
+      data: updateEventDto,
+      where: {id}
+    });
   }
 
   remove(id: number) {
