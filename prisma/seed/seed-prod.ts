@@ -1,8 +1,4 @@
-import {
-  PrismaClient,
-  RoleEnum,
-  User
-} from '@prisma/client';
+import { PrismaClient, RoleEnum, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -13,7 +9,7 @@ const createSuperAdminUser = async (): Promise<User> => {
       email: 'admin@mail.com',
       role: RoleEnum.SuperAdmin,
       password: await bcrypt.hash('Azerty1234!', 10),
-      status: 'Inactive',
+      status: 'Active',
     },
   });
   return superAdmin;
