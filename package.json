@@ -24,7 +24,8 @@
     "prisma:migrateprod": "npx prisma migrate deploy",
     "prisma:studio": "npx prisma studio &",
     "start:dockerdev": "npm run prisma:migratedev && npm run prisma:studio && npm run start:dev ",
-    "start:dockerprod": "npm run prisma:migrateprod && npm run prisma:seedprod && npm run start:prod "
+    "start:dockerprod": "npm run prisma:migrateprod && npm run prisma:seedprod && npm run start:prod ",
+    "start:renderprod": "npm run prisma:migratedev && npm run prisma:seedprod && npm run start:prod"
   },
   "prisma": {
     "seed": "ts-node ./prisma/seed/index.ts"
