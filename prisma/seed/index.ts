@@ -16,47 +16,7 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-const NODE_ENV = process.env.NODE_ENV;
 
-if (NODE_ENV === 'production') {
-  const createSuperAdminUser = async (): Promise<User> => {
-    const superAdmin = await prisma.user.create({
-      data: {
-        email: 'admin@mail.com',
-        role: RoleEnum.SuperAdmin,
-        refreshToken: faker.string.alpha(155),
-        password: await bcrypt.hash('Azerty1234!', 10),
-        status: 'Active',
-      },
-    });
-    return superAdmin;
-  };
-
-  const createUserProfiles = async (users: User[]): Promise<Profile[]> => {
-    const usersProfiles: Profile[] = [];
-    let number = users.length - 1;
-    while (number) {
-      const userProfile = await prisma.profile.create({
-        data: {
-          userId: users[number].id,
-          firstname: faker.person.firstName().substring(0, 50),
-          lastname: faker.person.lastName().substring(0, 50),
-          nickname: faker.internet.userName().substring(0, 20),
-          avatarPath: 'https://docs.material-tailwind.com/img/face-2.jpg',
-        },
-      });
-      usersProfiles.push(userProfile);
-      number--;
-    }
-    return usersProfiles;
-  };
-
-  async function bootstrap() {
-    const superAdmin = await createSuperAdminUser();
-    await createUserProfiles([superAdmin]);
-  }
-  bootstrap();
-} else {
   const createSuperAdminUser = async (): Promise<User> => {
     const superAdmin = await prisma.user.create({
       data: {
@@ -407,4 +367,4 @@ if (NODE_ENV === 'production') {
     await createUserNotifications(users, notifications, 20);
   }
   bootstrap();
-}
+
