@@ -1,8 +1,11 @@
 import {
+  PrismaClient,
   RoleEnum,
   User
 } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
+const prisma = new PrismaClient();
 
 const createSuperAdminUser = async (): Promise<User> => {
   const superAdmin = await prisma.user.create({
