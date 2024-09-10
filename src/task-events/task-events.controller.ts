@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { TaskEventsService } from './task-events.service';
 import { CreateTaskEventDto } from './dto/create-task-event.dto';
 import { UpdateTaskEventDto } from './dto/update-task-event.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('task-events')
 export class TaskEventsController {
   constructor(private readonly taskEventsService: TaskEventsService) {}
@@ -17,14 +28,25 @@ export class TaskEventsController {
     return this.taskEventsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.taskEventsService.findOne(+id);
+  @Get(':taskId/:eventId')
+  async findOneById(
+    @Param('taskId') taskId: string,
+    @Param('eventId') eventId: string,
+  ) {
+    return await this.taskEventsService.findOne(taskId, eventId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskEventDto: UpdateTaskEventDto) {
-    return this.taskEventsService.update(+id, updateTaskEventDto);
+  @Patch(':taskId/:eventId')
+  async update(
+    @Param('taskId') taskId: string,
+    @Param('eventId') eventId: string,
+    @Body() updateTaskEventDto: UpdateTaskEventDto,
+  ) {
+    return await this.taskEventsService.update(
+      taskId,
+      eventId,
+      updateTaskEventDto,
+    );
   }
 
   @Delete(':id')

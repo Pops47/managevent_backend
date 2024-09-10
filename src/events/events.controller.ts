@@ -1,34 +1,71 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { EventsService } from './events.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Event } from '@prisma/client';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RequestWithUser } from 'src/utils/interfaces/request';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { EventsService } from './events.service';
 
+@UseGuards(AuthGuard)
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  async create(
+    @Req() request: RequestWithUser,
+    @Body() createEventDto: CreateEventDto,
+  ): Promise<Event> {
+    const userRole = request.user.role;
+    if (userRole === 'Volunteer') {
+      throw new HttpException('Unauthorized', 401);
+    }
+    return await this.eventsService.create(createEventDto);
   }
 
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  async findAll(): Promise<Event[]> {
+    return await this.eventsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Event> {
+    return await this.eventsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
+  async update(
+    @Param('id') id: string,
+    @Req() request: RequestWithUser,
+    @Body() updateEventDto: UpdateEventDto,
+  ): Promise<Event> {
+    const userRole = request.user.role;
+    if (userRole === 'Volunteer') {
+      throw new HttpException('Unauthorized', 401);
+    }
+    return await this.eventsService.update(+id, updateEventDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Req() request: RequestWithUser,
+  ): Promise<Event> {
+    const userRole = request.user.role;
+    if (userRole === 'Volunteer') {
+      throw new HttpException('Unauthorized', 401);
+    }
+    return await this.eventsService.remove(+id);
   }
 }

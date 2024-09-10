@@ -22,7 +22,8 @@ const createSuperAdminUser = async (): Promise<User> => {
       email: 'admin@mail.com',
       role: RoleEnum.SuperAdmin,
       refreshToken: faker.string.alpha(155),
-      password: await bcrypt.hash('devPunk!', 10),
+      password: await bcrypt.hash('Azerty1234!', 10),
+      status: 'Active',
     },
   });
   return superAdmin;
@@ -35,7 +36,8 @@ const createUsers = async (number: number): Promise<User[]> => {
         email: faker.internet.email(),
         role: RoleEnum.Volunteer,
         refreshToken: faker.string.alpha(155),
-        password: await bcrypt.hash('devPunk!', 10),
+        password: await bcrypt.hash('Azerty1234!', 10),
+        status: 'Active',
       },
     });
     users.push(userVolunteer);
@@ -54,6 +56,7 @@ const createUserProfiles = async (users: User[]): Promise<Profile[]> => {
         firstname: faker.person.firstName().substring(0, 50),
         lastname: faker.person.lastName().substring(0, 50),
         nickname: faker.internet.userName().substring(0, 20),
+        avatarPath: 'https://docs.material-tailwind.com/img/face-2.jpg',
       },
     });
     usersProfil.push(userProfilVolunteer);
@@ -72,7 +75,8 @@ const createEvents = async (number: number): Promise<Event[]> => {
   const events: Event[] = [];
   while (number) {
     const startDate = faker.date.future();
-    const endDate = dateAddDays(1, startDate);
+    const random = Math.floor(Math.random() * 3);
+    const endDate = dateAddDays(random, startDate);
     const event = await prisma.event.create({
       data: {
         title: faker.word.words(2).substring(0, 30),
@@ -355,5 +359,4 @@ async function bootstrap() {
   const notifications = await createNotifications(10);
   await createUserNotifications(users, notifications, 20);
 }
-
 bootstrap();

@@ -7,8 +7,10 @@ import { UpdateUserTaskEventDto } from './dto/update-user-task-event.dto';
 export class UserTaskEventsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  create(createUserTaskEventDto: CreateUserTaskEventDto) {
-    return 'This action adds a new userTaskEvent';
+  async create(createUserTaskEventDto: CreateUserTaskEventDto) {
+    return await this.prismaService.userTaskEvent.create({
+      data: createUserTaskEventDto,
+    });
   }
 
   findAll() {
@@ -16,14 +18,18 @@ export class UserTaskEventsService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} userTaskEvent`;
+    return 'findOne';
   }
 
-  update(id: number, updateUserTaskEventDto: UpdateUserTaskEventDto) {
-    return `This action updates a #${id} userTaskEvent`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} userTaskEvent`;
+  async remove(taskId: string, eventId: string, userId: string) {
+    return await this.prismaService.userTaskEvent.delete({
+      where: {
+        userId_taskId_eventId: {
+          taskId: +taskId,
+          eventId: +eventId,
+          userId,
+        },
+      },
+    });
   }
 }

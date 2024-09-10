@@ -1,34 +1,69 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { TasksService } from './tasks.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TasksService } from './tasks.service';
 
+import { Task } from '@prisma/client';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RequestWithUser } from 'src/utils/interfaces/request';
+
+@UseGuards(AuthGuard)
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.tasksService.create(createTaskDto);
+  async create(
+    @Req() request: RequestWithUser,
+    @Body() createTaskDto: CreateTaskDto,
+  ): Promise<Task> {
+    const userRole = request.user.role;
+    if (userRole === 'Volunteer') {
+      throw new HttpException('Unauthorized', 401);
+    }
+    return await this.tasksService.create(createTaskDto);
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  async findAll(): Promise<Task[]> {
+    return await this.tasksService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Task> {
+    return await this.tasksService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
+  async update(
+    @Param('id') id: string,
+    @Req() request: RequestWithUser,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<Task> {
+    const userRole = request.user.role;
+    if (userRole === 'Volunteer') {
+      throw new HttpException('Unauthorized', 401);
+    }
+    return await this.tasksService.update(+id, updateTaskDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
+  async remove(@Param('id') id: string, @Req() request: RequestWithUser) {
+    const userRole = request.user.role;
+    if (userRole === 'Volunteer') {
+      throw new HttpException('Unauthorized', 401);
+    }
+    return await this.tasksService.remove(+id);
   }
 }

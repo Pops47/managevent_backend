@@ -15,12 +15,31 @@ export class TaskEventsService {
     return `This action returns all taskEvents`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} taskEvent`;
+  async findOne(taskId: string, eventId: string) {
+    return await this.prismaService.taskEvent.findUnique({
+      where: {
+        taskId_eventId: {
+          taskId: +taskId,
+          eventId: +eventId,
+        },
+      },
+    });
   }
 
-  update(id: number, updateTaskEventDto: UpdateTaskEventDto) {
-    return `This action updates a #${id} taskEvent`;
+  async update(
+    taskId: string,
+    eventId: string,
+    updateTaskEventDto: UpdateTaskEventDto,
+  ) {
+    return await this.prismaService.taskEvent.update({
+      where: {
+        taskId_eventId: {
+          taskId: +taskId,
+          eventId: +eventId,
+        },
+      },
+      data: updateTaskEventDto,
+    });
   }
 
   remove(id: number) {
