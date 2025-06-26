@@ -10,21 +10,33 @@ async function bootstrap() {
   app.useGlobalInterceptors(new Interceptor());
 
   const config = new DocumentBuilder()
-    .setTitle('Median')
-    .setDescription('The Median API description')
-    .setVersion('0.1')
+    .setTitle('ManageVent API')
+    .setDescription(
+      "API de gestion d'événements et de bénévoles pour ManageVent",
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Entrez votre token JWT',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('apiDoc', app, document);
-
-  app.enableCors();
-  // app.enableCors({
-  //   origin: true,
-  //   methods: 'GET,PUT,PATCH,POST,DELETE',
-  //   allowedHeaders: 'Content-Type, Accept',
-  // });
+  app.enableCors({
+    origin: true,
+    methods: 'GET,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Accept',
+  });
 
   await app.listen(process.env.PORT);
+  console.log(`Server is running on port ${process.env.PORT}`);
 }
 bootstrap();

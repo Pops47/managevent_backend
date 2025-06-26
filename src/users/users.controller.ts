@@ -10,12 +10,21 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RequestWithUser } from 'src/utils/interfaces/request';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
+@ApiTags('Utilisateurs')
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
@@ -25,16 +34,47 @@ export class UsersController {
   ) {}
 
   @Get()
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer tous les utilisateurs',
+    description: 'Retourne la liste de tous les utilisateurs',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des utilisateurs retournée avec succès',
+  })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get('info')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: "Récupérer les informations de l'utilisateur connecté",
+    description: "Retourne les détails de l'utilisateur authentifié",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Informations utilisateur retournées',
+  })
   async findOneByToken(@Req() request: RequestWithUser) {
     return await this.usersService.findOneById(request.user.id);
   }
 
   @Get(':id')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer un utilisateur par ID',
+    description: "Retourne les détails d'un utilisateur spécifique",
+  })
+  @ApiParam({ name: 'id', description: "ID de l'utilisateur" })
+  @ApiResponse({ status: 200, description: 'Utilisateur trouvé' })
+  @ApiResponse({
+    status: 401,
+    description:
+      'Non autorisé - Bénévoles ne peuvent voir que leur propre profil',
+  })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
   findOne(@Param('id') id: string, @Req() request: RequestWithUser) {
     if (request.user.role === 'Volunteer' && request.user.id !== id) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
@@ -43,6 +83,17 @@ export class UsersController {
   }
 
   @Get('/token/:token')
+  @ApiOperation({
+    summary: 'Récupérer un utilisateur par token de réinitialisation',
+    description:
+      'Retourne un utilisateur basé sur son token de réinitialisation de mot de passe',
+  })
+  @ApiParam({
+    name: 'token',
+    description: 'Token de réinitialisation de mot de passe',
+  })
+  @ApiResponse({ status: 200, description: 'Utilisateur trouvé' })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
   findOneByResetPassToken(@Param('token') token: string) {
     console.log(
       '🚀 ~ UsersController ~ findOneByResetPassToken ~ token:',
@@ -52,6 +103,18 @@ export class UsersController {
   }
 
   @Patch()
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Mettre à jour le profil utilisateur',
+    description: "Met à jour les informations de l'utilisateur connecté",
+  })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({ status: 200, description: 'Profil mis à jour avec succès' })
+  @ApiResponse({
+    status: 401,
+    description: 'Non autorisé ou mot de passe actuel incorrect',
+  })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
   async update(
     @Body() updateUserDto: UpdateUserDto,
     @Req() request: RequestWithUser,
@@ -96,6 +159,17 @@ export class UsersController {
   }
 
   @Delete()
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Supprimer le compte utilisateur',
+    description: "Supprime le compte de l'utilisateur connecté",
+  })
+  @ApiResponse({ status: 200, description: 'Compte supprimé avec succès' })
+  @ApiResponse({
+    status: 401,
+    description: 'Non autorisé - Certains rôles ne peuvent pas être supprimés',
+  })
+  @ApiResponse({ status: 404, description: 'Utilisateur non trouvé' })
   async remove(@Req() request: RequestWithUser) {
     const userToDelete = await this.usersService.findOneById(request.user.id);
     if (!userToDelete) {
