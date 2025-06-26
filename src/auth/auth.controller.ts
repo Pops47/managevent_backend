@@ -18,7 +18,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { User } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { MailerService } from 'src/mailer/mailer.service';
 import { UsersService } from 'src/users/users.service';
 import { RequestWithRefresh } from 'src/utils/interfaces/request';
