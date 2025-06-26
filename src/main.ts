@@ -10,9 +10,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new Interceptor());
 
   const config = new DocumentBuilder()
-    .setTitle('ManageVent API')
+    .setTitle("Manag'Event API")
     .setDescription(
-      "API de gestion d'événements et de bénévoles pour ManageVent",
+      "API de gestion d'événements et de bénévoles pour le milieu associatif",
     )
     .setVersion('1.0')
     .addBearerAuth(
