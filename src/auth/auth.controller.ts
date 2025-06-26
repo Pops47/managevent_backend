@@ -65,10 +65,10 @@ export class AuthController {
     });
 
     // envoi le mail de confirmation
-    await this.mailerService.sendRegisterConfirmationEmail(
-      newUser.email,
-      confirmToken,
-    );
+    // await this.mailerService.sendRegisterConfirmationEmail(
+    //   newUser.email,
+    //   confirmToken,
+    // );
     return { message: 'User Created', user: newUser };
   }
 
