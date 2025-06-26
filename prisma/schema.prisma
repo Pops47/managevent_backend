@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -116,7 +117,7 @@ model UserNotification {
 model UserBadge {
   userId     String 
   taskId     Int 
-  level      Int @default(1) @db.TinyInt()
+  level      Int @default(1) @db.SmallInt()
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   @@id([userId, taskId])

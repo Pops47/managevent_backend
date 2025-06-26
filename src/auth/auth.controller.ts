@@ -9,6 +9,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from 'src/mailer/mailer.service';
@@ -18,6 +26,7 @@ import { AuthService } from './auth.service';
 import { RegisterLoginDto } from './dto/register-login.dto';
 import { AuthRefreshGuard } from './guards/refresh.guard';
 
+@ApiTags('Authentification')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -27,6 +36,14 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @ApiOperation({
+    summary: "Inscription d'un nouvel utilisateur",
+    description:
+      'Crée un nouveau compte utilisateur et envoie un email de confirmation',
+  })
+  @ApiBody({ type: RegisterLoginDto })
+  @ApiResponse({ status: 201, description: 'Utilisateur créé avec succès' })
+  @ApiResponse({ status: 403, description: 'Email déjà existant' })
   async register(@Body() payload: RegisterLoginDto) {
     //vérifie si il existe un user avec cet email
     const user = await this.userService.findOneByEmail(payload.email);
@@ -56,6 +73,18 @@ export class AuthController {
   }
 
   @Get('register-confirm/:token')
+  @ApiOperation({
+    summary: "Confirmation d'inscription",
+    description:
+      "Confirme l'inscription d'un utilisateur via le token reçu par email",
+  })
+  @ApiParam({
+    name: 'token',
+    description: 'Token de confirmation reçu par email',
+  })
+  @ApiResponse({ status: 200, description: 'Compte activé avec succès' })
+  @ApiResponse({ status: 404, description: 'Token non trouvé' })
+  @ApiResponse({ status: 401, description: 'Token invalide ou expiré' })
   async verifyConfirmToken(@Param('token') token: string) {
     const user = await this.userService.findOneByConfirmToken(token);
     if (!user) {
@@ -72,6 +101,19 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({
+    summary: 'Connexion utilisateur',
+    description: "Authentifie un utilisateur et retourne les tokens d'accès",
+  })
+  @ApiBody({ type: RegisterLoginDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Connexion réussie, tokens retournés',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Identifiants incorrects ou compte inactif',
+  })
   async login(@Body() payload: RegisterLoginDto) {
     // check if email exist
     const user = await this.userService.findOneByEmail(payload.email);
@@ -97,7 +139,7 @@ export class AuthController {
     const token = await this.authService.createToken(
       { id: user.id, email: payload.email, role: user.role },
       process.env.SECRET_KEY,
-      "3h",
+      '3h',
     );
     const refreshToken = await this.authService.createToken(
       { id: user.id, email: payload.email, role: user.role },
@@ -114,11 +156,21 @@ export class AuthController {
 
   @Get('refresh-token')
   @UseGuards(AuthRefreshGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Rafraîchir le token',
+    description: "Génère un nouveau token d'accès à partir du refresh token",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nouveaux tokens générés avec succès',
+  })
+  @ApiResponse({ status: 401, description: 'Token invalide' })
   async refreshToken(
     @Req() req: RequestWithRefresh,
   ): Promise<{ user: User; authToken: string; refreshToken: string }> {
     // get user from payload
-    
+
     const user: User = await this.userService.findOneById(req.user.id);
     // check user exists
     if (!user) throw new HttpException("User doesn't exist", 404);
@@ -132,7 +184,7 @@ export class AuthController {
     const authToken = await this.authService.createToken(
       { id: user.id, email: req.user.email, role: user.role },
       process.env.SECRET_KEY,
-      "3h",
+      '3h',
     );
     const refreshToken = await this.authService.createToken(
       { id: user.id, email: req.user.email, role: user.role },
@@ -150,6 +202,20 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @ApiOperation({
+    summary: 'Demande de réinitialisation de mot de passe',
+    description: 'Envoie un email avec un lien de réinitialisation',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Email de réinitialisation envoyé' })
+  @ApiResponse({ status: 404, description: 'Aucun utilisateur avec cet email' })
   async sendResetPasswordEmail(@Body() { email }: { email: string }) {
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
@@ -172,6 +238,14 @@ export class AuthController {
   }
 
   @Get('reset-password/:token')
+  @ApiOperation({
+    summary: 'Vérification du token de réinitialisation',
+    description: 'Vérifie la validité du token de réinitialisation',
+  })
+  @ApiParam({ name: 'token', description: 'Token de réinitialisation' })
+  @ApiResponse({ status: 200, description: 'Token valide' })
+  @ApiResponse({ status: 404, description: 'Token non trouvé' })
+  @ApiResponse({ status: 401, description: 'Token invalide' })
   async displayResetPasswordForm(@Param() token: string) {
     const user = await this.userService.findOneByResetPassToken(token);
     const isValid = await this.authService.isResetPassTokenValid(token);
@@ -185,6 +259,25 @@ export class AuthController {
   }
 
   @Post('finalize-reset-password')
+  @ApiOperation({
+    summary: 'Finaliser la réinitialisation de mot de passe',
+    description: 'Change le mot de passe avec le nouveau mot de passe fourni',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        newPassword: { type: 'string', example: 'newPassword123' },
+        token: { type: 'string', example: 'reset-token-here' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Mot de passe mis à jour avec succès',
+  })
+  @ApiResponse({ status: 404, description: 'Token non trouvé' })
+  @ApiResponse({ status: 401, description: 'Token invalide' })
   async finalizeResetPassword(
     @Body() { newPassword, token }: { newPassword: string; token: string },
   ) {

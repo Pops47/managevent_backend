@@ -79,7 +79,7 @@ const createEvents = async (number: number): Promise<Event[]> => {
     const endDate = dateAddDays(random, startDate);
     const event = await prisma.event.create({
       data: {
-        title: faker.word.words(2).substring(0, 30),
+        title: `Evenement ${number}`,
         description: faker.lorem.lines(5),
         adress: faker.location.streetAddress(),
         startDate: startDate,
