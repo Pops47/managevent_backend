@@ -30,10 +30,23 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('apiDoc', app, document);
+
+  // Configuration CORS pour autoriser le frontend Netlify
   app.enableCors({
-    origin: true,
-    methods: 'GET,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
+    origin: [
+      'https://managevent.netlify.app',
+      'http://localhost:3000', // Pour le développement local
+      'http://localhost:5173', // Pour Vite en développement
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+      'Origin',
+    ],
+    credentials: true, // Pour permettre l'envoi de cookies et headers d'authentification
   });
 
   await app.listen(process.env.PORT);
