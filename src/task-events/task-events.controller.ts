@@ -58,6 +58,86 @@ export class TaskEventsController {
     return this.taskEventsService.findAll();
   }
 
+  @Get('with-relations')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer toutes les associations tâche-événement avec relations',
+    description:
+      'Retourne la liste de toutes les associations avec les détails des tâches et événements',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Liste des associations avec relations retournée avec succès',
+  })
+  findAllWithRelations() {
+    return this.taskEventsService.findAllWithRelations();
+  }
+
+  @Get('event/:eventId')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer les associations par événement',
+    description:
+      'Retourne toutes les associations pour un événement spécifique',
+  })
+  @ApiParam({ name: 'eventId', description: "ID de l'événement" })
+  @ApiResponse({
+    status: 200,
+    description: "Associations de l'événement retournées avec succès",
+  })
+  findByEventId(@Param('eventId') eventId: string) {
+    return this.taskEventsService.findByEventId(eventId);
+  }
+
+  @Get('event/:eventId/with-relations')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer les associations par événement avec relations',
+    description:
+      'Retourne toutes les associations pour un événement avec les détails des tâches',
+  })
+  @ApiParam({ name: 'eventId', description: "ID de l'événement" })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Associations de l'événement avec relations retournées avec succès",
+  })
+  findByEventIdWithRelations(@Param('eventId') eventId: string) {
+    return this.taskEventsService.findByEventIdWithRelations(eventId);
+  }
+
+  @Get('task/:taskId')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer les associations par tâche',
+    description: 'Retourne toutes les associations pour une tâche spécifique',
+  })
+  @ApiParam({ name: 'taskId', description: 'ID de la tâche' })
+  @ApiResponse({
+    status: 200,
+    description: 'Associations de la tâche retournées avec succès',
+  })
+  findByTaskId(@Param('taskId') taskId: string) {
+    return this.taskEventsService.findByTaskId(taskId);
+  }
+
+  @Get('task/:taskId/with-relations')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer les associations par tâche avec relations',
+    description:
+      'Retourne toutes les associations pour une tâche avec les détails des événements',
+  })
+  @ApiParam({ name: 'taskId', description: 'ID de la tâche' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Associations de la tâche avec relations retournées avec succès',
+  })
+  findByTaskIdWithRelations(@Param('taskId') taskId: string) {
+    return this.taskEventsService.findByTaskIdWithRelations(taskId);
+  }
+
   @Get(':taskId/:eventId')
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
@@ -74,6 +154,27 @@ export class TaskEventsController {
     @Param('eventId') eventId: string,
   ) {
     return await this.taskEventsService.findOne(taskId, eventId);
+  }
+
+  @Get(':taskId/:eventId/with-relations')
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Récupérer une association tâche-événement avec relations',
+    description:
+      "Retourne les détails d'une association spécifique avec les détails de la tâche et de l'événement",
+  })
+  @ApiParam({ name: 'taskId', description: 'ID de la tâche' })
+  @ApiParam({ name: 'eventId', description: "ID de l'événement" })
+  @ApiResponse({
+    status: 200,
+    description: 'Association avec relations trouvée',
+  })
+  @ApiResponse({ status: 404, description: 'Association non trouvée' })
+  async findOneByIdWithRelations(
+    @Param('taskId') taskId: string,
+    @Param('eventId') eventId: string,
+  ) {
+    return await this.taskEventsService.findOneWithRelations(taskId, eventId);
   }
 
   @Patch(':taskId/:eventId')
@@ -103,19 +204,20 @@ export class TaskEventsController {
     );
   }
 
-  @Delete(':id')
+  @Delete(':taskId/:eventId')
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Supprimer une association tâche-événement',
     description: 'Supprime une association entre une tâche et un événement',
   })
-  @ApiParam({ name: 'id', description: "ID de l'association à supprimer" })
+  @ApiParam({ name: 'taskId', description: 'ID de la tâche' })
+  @ApiParam({ name: 'eventId', description: "ID de l'événement" })
   @ApiResponse({
     status: 200,
     description: 'Association supprimée avec succès',
   })
   @ApiResponse({ status: 404, description: 'Association non trouvée' })
-  remove(@Param('id') id: string) {
-    return this.taskEventsService.remove(+id);
+  remove(@Param('taskId') taskId: string, @Param('eventId') eventId: string) {
+    return this.taskEventsService.remove(taskId, eventId);
   }
 }
